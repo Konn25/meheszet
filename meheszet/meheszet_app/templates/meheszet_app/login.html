@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>Belépés</title>
+</head>
+<body>
+<nav class="navbar navbar-light bg-light">
+    <form class="container-fluid justify-content-center">
+        <center>
+            <a class="btn btn-outline-primary" href="{% url 'index' %}" role="button">Főoldal</a>
+        </center>
+    </form>
+</nav>
+<center><h1>Belépés</h1></center>
+
+<form class="container-fluid justify-content-center">
+    <div class="container">
+        <label class="form-label">Felhasználónév</label>
+        <input type="text" aria-label="Felhasználónév" class="form-control">
+    </div>
+    <br>
+    <div class="container">
+        <label class="form-label">Jelszó</label>
+        <input type="password" class="form-control" id="exampleInputPassword1">
+    </div>
+</form>
+<br>
+<div class="container">
+    <center>
+         <a class="btn btn-primary" href="{% url 'loggedIn' %}" role="button">Belépés</a>
+    </center>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+</body>
+</html>
