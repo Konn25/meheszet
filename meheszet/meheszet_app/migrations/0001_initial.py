@@ -19,9 +19,7 @@ class Migration(migrations.Migration):
                 ('lastname', models.CharField(max_length=50)),
                 ('username', models.CharField(max_length=50)),
                 ('password', models.CharField(max_length=30)),
-                ('email', models.CharField(max_length=150)),
-                ('beekepingNature', models.CharField(choices=[('Álló', 'Standing'), ('Vándor', 'Migration')], default='Álló', max_length=8)),
-                ('smallProducerRegNumber', models.CharField(max_length=7)),
+                ('email', models.CharField(max_length=150))
             ],
         ),
     ]
