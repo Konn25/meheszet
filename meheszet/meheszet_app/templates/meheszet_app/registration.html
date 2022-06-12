@@ -6,7 +6,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <title>Regisztráció</title>
 </head>
 <body id="body">
@@ -20,67 +20,100 @@
 <br>
 <center><h1>Regisztráció</h1></center>
 
-
-<form class="container-fluid justify-content-center" method="POST" id="post-form"> {% csrf_token %}
+<form class="container-fluid justify-content-center needs-validation" method="POST" id="post-form"> {% csrf_token %}
     <div class="container">
         <label class="form-label">Vezetéknév</label>
-        <input type="text" aria-label="Vezetéknév" class="form-control" name="lastname">
+        <input type="text" aria-label="Vezetéknév" class="form-control" name="lastname" required>
     </div>
     <br>
     <div class="container">
         <label class="form-label">Keresztnév</label>
-        <input type="text" aria-label="Keresztnév" class="form-control" name="firstname">
-    </div>
-    <br>
-    <div class="container">
-        <label class="form-label">Méhészet jellege</label>
-        <select class="form-select" name="beekepingNature">
-            <option selected>Opció választása</option>
-            <option value="1">Álló</option>
-            <option value="2">Vándor</option>
-        </select>
-    </div>
-    <br>
-    <div class="container">
-        <label class="form-label">Kistermelő regisztrációs szám</label>
-        <input type="text" aria-label="Keresztnév" class="form-control" name="smallProducerRegNumber">
+        <input type="text" aria-label="Keresztnév" class="form-control" name="firstname" required>
     </div>
     <br>
     <div class="container">
         <label class="form-label">Felhasználónév</label>
-        <input type="text" aria-label="Felhasználónév" class="form-control" name="username">
+        <input type="text" aria-label="Felhasználónév" class="form-control" name="username" required>
     </div>
     <br>
     <div class="container">
-        <label class="form-label">Email cím</label>
-        <input type="email" class="form-control" aria-describedby="emailHelp" name="email">
+        <div class="form-outline">
+            <label for="validationCustomEmail" class="form-label">E-Mail</label>
+            <input type="text" class="form-control" name="email" id="validationCustomEmail" value="" required/>
+            <div class="valid-feedback">Megfelelő</div>
+            <div class="invalid-feedback">Adj meg egy érvényes email címet például: valami@teszt.hu</div>
+        </div>
     </div>
     <br>
     <div class="container">
         <label class="form-label">Jelszó</label>
-        <input type="password" class="form-control" name="password">
+        <input type="password" class="form-control" name="password" id="password" required>
+    </div>
+    <div class="container">
+        <label class="form-label">Jelszó újra</label>
+        <input type="password" class="form-control" name="re-password" id="re-password" required>
     </div>
     <br>
-        <div class="container">
+    <div class="container">
         <center>
-             <button class="btn btn-primary" type="submit" id="submit-btn">Regisztrálás</button>
+            <button class="btn btn-primary" type="submit" id="submit-btn" disabled>Regisztrálás</button>
         </center>
     </div>
     <div id="content">
 
-    {% include 'meheszet_app/message.html' %}
+        {% include 'meheszet_app/message.html' %}
 
-    {% block content %} {% endblock content%}
-</div>
+        {% block content %} {% endblock content%}
+    </div>
 </form>
-
-
-
-
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous">
 </script>
+
+<script>
+    $('#password, #re-password, #submit-btn').on('keyup', function() {
+        if($('#password').val() == $('#re-password').val()){
+            if($('#password').val() == '' || $('#re-password').val()==''){
+                $('#submit-btn').attr({disabled:true});
+            }
+            else{
+             $('#submit-btn').attr({disabled:false});
+            }
+        }
+        else{
+            $('#submit-btn').attr({disabled:true});
+        }
+    });
+
+    (() => {
+         'use strict';
+          const forms = document.querySelectorAll('.needs-validation');
+          Array.prototype.slice.call(forms).forEach((form) => {
+             form.addEventListener('submit', (event) => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+             }, false);
+          });
+
+        var email = document.getElementById('validationCustomEmail');
+        email.oninput = () => {
+             const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+             if(!re.test(email.value)){
+                email.classList.add('is-invalid');
+            } else {
+                email.classList.remove('is-invalid');
+                email.setCustomValidity("")
+            }
+        }
+    })();
+
+
+</script>
+
 </body>
 </html>
