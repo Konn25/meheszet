@@ -1,17 +1,20 @@
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect
-from django.template import RequestContext
-
+from django.shortcuts import render, redirect, reverse
 from .models import AddUser
 from django.contrib import messages
 
 import hashlib as hl
 
-
 # Create your views here.
+SS = ""
+
 
 def index(request):
-    return render(request, 'meheszet_app/index.html')
+    request.session.modified = True
+    if 'username' in request.session:
+          del request.session['username']
+    SS = ""
+    return render(request, 'meheszet_app/index.html',{})
 
 
 def registration(request):
@@ -62,7 +65,7 @@ def createUser():
     return HttpResponse("Új felhasználó létrehozva!")
 
 
-def login(request):
+def login(request, **kwargs):
     finduser = False
     findpass = False
     userdata = AddUser.objects.all().values()
@@ -71,24 +74,47 @@ def login(request):
         password = request.POST['password']
 
         for i in range(len(userdata)):
+            getUserIndex = -1
+
             if userdata[i]['username'] == username:
                 finduser = True
-            elif userdata[i]['password'] == hl.sha256(password.encode('utf-8')).hexdigest():
-                findpass = True
+                getUserIndex = i
+                if userdata[getUserIndex]['password'] == hl.sha256(password.encode('utf-8')).hexdigest():
+                    findpass = True
+                if finduser == True and findpass == True:
+                    SS = request.session['username'] = username
+                    break
 
-        if len(request.POST.getlist('username')) == "":
-            messages.error(request, "Add meg a felhasználó nevet!")
-        elif finduser == False:
+        if finduser == False:
             messages.error(request, "Hibás felhasználónév vagy jelszó!")
-        elif len(request.POST.getlist('password')) == "":
-            messages.error(request, "Add meg a jelszót!")
         elif findpass == False:
             messages.error(request, "Hibás felhasználónév vagy jelszó!")
-        elif finduser == True and findpass == True:
-            return redirect('loggedIn')
+        elif finduser == True and findpass == True and request.session['username']!="":
+            # return HttpResponseRedirect(reverse('loggedIn',kwargs={'userdata':username}))
+            # return render(request, 'meheszet_app/loggedIn.html',{'userdata':username})
+            return HttpResponseRedirect(reverse('loggedIn'))
+        elif request.session['username']=="":
+            return render(request, 'meheszet_app/index.html')
 
     return render(request, 'meheszet_app/login.html')
 
 
 def loggedIn(request):
-    return render(request, 'meheszet_app/loggedIn.html')
+    #redirect('loggedIn')
+
+    var = request.session.get('username')
+    if var == "":
+        return redirect('index')
+    if var in request.session:
+        print('yes! var')
+        del request.session['username']
+        return redirect('index')
+    elif 'username' not in request.session:
+        print('yes!')
+        #del request.session['username']
+        return redirect('index')
+    elif request.session['username']!="":
+        return render(request, 'meheszet_app/loggedIn.html', {'userdata': var})
+
+def logOut():
+    return redirect('index')
