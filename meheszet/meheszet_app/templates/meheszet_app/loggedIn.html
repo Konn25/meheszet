@@ -1,10 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hu">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>Belépve</title>
 </head>
 <body>
-<h1>BELÉPVE</h1>
+<nav class="navbar navbar-light bg-light">
+    <form class="container-fluid justify-content-center">{% csrf_token %}
+        <center>
+            <a class="btn btn-outline-primary" href="" role="button">Tenyészetek</a>
+            <a class="btn btn-outline-primary" href="" role="button">Profil</a>
+            <a class="btn btn-outline-primary" href="{% url 'logOut' %}" role="button">Kijelentkezés</a>
+        </center>
+    </form>
+</nav>
+
+{% block content %}
+{% if userdata is not None %}
+<h1>Hello, {{ userdata }}</h1>
+{% else %}
+   <meta http-equiv="REFRESH" content="0;url={%url 'index'%}">
+{% endif %}
+{% endblock %}
+
+
+<br>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+<script>
+ if ( window.performance.navigation.type == window.performance.navigation.TYPE_BACK_FORWARD) {
+        window.location.reload(true);
+    }
+
+
+</script>
 </body>
 </html>
