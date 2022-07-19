@@ -11,3 +11,12 @@ class AddUser(models.Model):
 
     def __str__(self):
         return self.username+" "+self.email
+
+
+
+class Breeding(models.Model):
+    username = models.CharField(max_length=50, null=False, blank=False)
+    breedingcode = models.CharField(max_length=7, null=False, blank=False)
+
+    def __str__(self):
+        return self.username+" | "+self.breedingcode

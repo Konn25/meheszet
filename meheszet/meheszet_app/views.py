@@ -1,6 +1,6 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, reverse
-from .models import AddUser
+from .models import AddUser, Breeding
 from django.contrib import messages
 
 import hashlib as hl
@@ -9,12 +9,13 @@ import hashlib as hl
 SS = ""
 
 
+###AddUser function###
 def index(request):
     request.session.modified = True
     if 'username' in request.session:
-          del request.session['username']
+        del request.session['username']
     SS = ""
-    return render(request, 'meheszet_app/index.html',{})
+    return render(request, 'meheszet_app/index.html', {})
 
 
 def registration(request):
@@ -89,32 +90,57 @@ def login(request, **kwargs):
             messages.error(request, "Hibás felhasználónév vagy jelszó!")
         elif findpass == False:
             messages.error(request, "Hibás felhasználónév vagy jelszó!")
-        elif finduser == True and findpass == True and request.session['username']!="":
-            # return HttpResponseRedirect(reverse('loggedIn',kwargs={'userdata':username}))
-            # return render(request, 'meheszet_app/loggedIn.html',{'userdata':username})
+        elif finduser == True and findpass == True and request.session['username'] != "":
             return HttpResponseRedirect(reverse('loggedIn'))
-        elif request.session['username']=="":
+        elif request.session['username'] == "":
             return render(request, 'meheszet_app/index.html')
 
     return render(request, 'meheszet_app/login.html')
 
 
 def loggedIn(request):
-    #redirect('loggedIn')
+    # redirect('loggedIn')
 
     var = request.session.get('username')
     if var == "":
         return redirect('index')
     if var in request.session:
-        print('yes! var')
         del request.session['username']
         return redirect('index')
     elif 'username' not in request.session:
-        print('yes!')
-        #del request.session['username']
+        # del request.session['username']
         return redirect('index')
-    elif request.session['username']!="":
+    elif request.session['username'] != "":
         return render(request, 'meheszet_app/loggedIn.html', {'userdata': var})
+
 
 def logOut():
     return redirect('index')
+
+
+###Breedings function###
+
+def breeading(request):
+    return ""
+
+
+def addNewBreeding(request):
+    if request.method == 'POST':
+        username = request.POST['userdata'][0]
+        breedingcode = request.POST['code']
+
+        new_code = Breeding(username=username, breedingcode=breedingcode)
+        new_code.save()
+
+
+def getUserBreeding(request):
+    breeading = Breeding.objects.all()
+    values = list(breeading.values())
+    filtered=[]
+
+    for i in range(0,len(values)):
+        if dict(values.__getitem__(i)).get('username') == request.session['username']:
+            filtered.append(dict(zip(list(values.__getitem__(i)),dict(values.__getitem__(i)).values())))
+    return JsonResponse({"breeding": filtered})
+
+

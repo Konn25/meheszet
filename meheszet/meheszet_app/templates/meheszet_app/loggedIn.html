@@ -6,30 +6,32 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <title>Belépve</title>
 </head>
 <body>
 <nav class="navbar navbar-light bg-light">
     <form class="container-fluid justify-content-center">{% csrf_token %}
         <center>
-            <a class="btn btn-outline-primary" href="" role="button">Tenyészetek</a>
+            <a class="btn btn-outline-primary" id="breeding" role="button" >Tenyészetek</a>
             <a class="btn btn-outline-primary" href="" role="button">Profil</a>
             <a class="btn btn-outline-primary" href="{% url 'logOut' %}" role="button">Kijelentkezés</a>
+            {% block content %}
+            {% if userdata is not None %}
+            <h8>Hello, {{ userdata }}</h8>
+            {% else %}
+            <meta http-equiv="REFRESH" content="0;url={%url 'index'%}">
+            {% endif %}
+            {% endblock %}
         </center>
     </form>
 </nav>
-
-{% block content %}
-{% if userdata is not None %}
-<h1>Hello, {{ userdata }}</h1>
-{% else %}
-   <meta http-equiv="REFRESH" content="0;url={%url 'index'%}">
-{% endif %}
-{% endblock %}
-
-
 <br>
+{% csrf_token %}
+<ul id="displaybreading">
+
+
+</ul>
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
@@ -37,11 +39,48 @@
         crossorigin="anonymous"></script>
 
 <script>
+
+var refresh;
+function refreshBreading(){
+     setTimeout(function(){
+            $.ajax({
+                type:'GET',
+                url: "{% url 'breeding' %}",
+                success: function(response){
+                    $("#displaybreading").empty();
+                    $("#displaybreading").append("<label>Tenyészet kód:</label>");
+                    $("#displaybreading").append("<input type='text'>");
+                    $("#displaybreading").append("<input type='button' value='Mentés'><br>");
+
+                    console.log(response.breeding)
+                    for (var key in response.breeding)
+                    {
+                        var temp = "<li>"+response.breeding[key].breedingcode+"</li>";
+                        $("#displaybreading").append(temp);
+                    }
+
+                },
+                error: function(response){
+                    alert("An Error Occured")
+                }
+            });
+        });
+}
+
+
+
+$('#breeding').click(function(){
+     refresh=refreshBreading();
+    });
+clearTimeout(refresh);
+
  if ( window.performance.navigation.type == window.performance.navigation.TYPE_BACK_FORWARD) {
         window.location.reload(true);
-    }
+ }
+
 
 
 </script>
+
 </body>
 </html>
