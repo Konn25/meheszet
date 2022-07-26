@@ -122,25 +122,26 @@ def logOut():
 
 def breeading(request):
     return ""
-
+ 
 
 def addNewBreeding(request):
     if request.method == 'POST':
-        username = request.POST['userdata'][0]
+        username = request.session.get('username')
         breedingcode = request.POST['code']
 
         new_code = Breeding(username=username, breedingcode=breedingcode)
         new_code.save()
+        return HttpResponse(reverse('breeding'))
 
 
 def getUserBreeding(request):
-    breeading = Breeding.objects.all()
-    values = list(breeading.values())
-    filtered=[]
+    if request.method == 'GET':
+        breeading = Breeding.objects.all()
+        values = list(breeading.values())
+        filtered=[]
 
-    for i in range(0,len(values)):
-        if dict(values.__getitem__(i)).get('username') == request.session['username']:
-            filtered.append(dict(zip(list(values.__getitem__(i)),dict(values.__getitem__(i)).values())))
-    return JsonResponse({"breeding": filtered})
-
+        for i in range(0,len(values)):
+            if dict(values.__getitem__(i)).get('username') == request.session['username']:
+                filtered.append(dict(zip(list(values.__getitem__(i)),dict(values.__getitem__(i)).values())))
+        return JsonResponse({"breeding": filtered})
 

@@ -27,36 +27,48 @@
     </form>
 </nav>
 <br>
+
+<div id="saveBreedingNumber" style="display:none">
+
+    <form class='container-fluid justify-content-center' method='POST'>
+        {% csrf_token %}
+        <label>Tenyészet kód:</label>
+        <input type='text' maxlength="7" name="code" id="code" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+        <button class="btn btn-primary" type="submit">Mentés</button><br>
+    
+    </form>
+</div>
+
+
 {% csrf_token %}
-<ul id="displaybreading">
+<ul id="displaybreeding">
 
 
 </ul>
 
 
+</body>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
 
+{% csrf_token %}
 <script>
 
 var refresh;
-function refreshBreading(){
+function refreshBreeding(){
      setTimeout(function(){
             $.ajax({
                 type:'GET',
                 url: "{% url 'breeding' %}",
                 success: function(response){
-                    $("#displaybreading").empty();
-                    $("#displaybreading").append("<label>Tenyészet kód:</label>");
-                    $("#displaybreading").append("<input type='text'>");
-                    $("#displaybreading").append("<input type='button' value='Mentés'><br>");
-
-                    console.log(response.breeding)
+                    $("#displaybreeding").empty();
+                    console.log(response.breeding);
                     for (var key in response.breeding)
                     {
                         var temp = "<li>"+response.breeding[key].breedingcode+"</li>";
-                        $("#displaybreading").append(temp);
+                        $("#displaybreeding").append(temp);
                     }
 
                 },
@@ -68,9 +80,37 @@ function refreshBreading(){
 }
 
 
+$(document).ready(function(){
+$('#saveBreedingNumber').on('submit', function(e){
+
+$.ajax({
+	method:'POST',
+	url:"{% url 'addBreeding' %}",
+	data:{
+	    code:$('#code').val(),
+        csrfmiddlewaretoken: "{{csrf_token}}",
+}, 
+success: function() {
+
+    alert('Sikeresen hozzáadtál egy új tenyészetet');
+	refreshBreeding();
+},
+});
+e.preventDefault();
+});
+
+});
+
+
+
+function hideSaveBar(){
+     document.getElementById("saveBreedingNumber").style.display = "block";
+}
+
 
 $('#breeding').click(function(){
-     refresh=refreshBreading();
+    hideSaveBar();
+    refresh=refreshBreeding();
     });
 clearTimeout(refresh);
 
@@ -78,9 +118,6 @@ clearTimeout(refresh);
         window.location.reload(true);
  }
 
-
-
 </script>
 
-</body>
 </html>

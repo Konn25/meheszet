@@ -9,6 +9,7 @@ urlpatterns = [
     path('login/',views.login,name='login'),
     path('loggedIn/', views.loggedIn,name='loggedIn'),
     path('', views.logOut,name='logOut'),
-    path('loggedIn/breedings', views.getUserBreeding, name='breeding')
+    path('loggedIn/breedings', views.getUserBreeding, name='breeding'),
+    path('loggedIn/breedings/add',views.addNewBreeding, name='addBreeding')
 
 ]
