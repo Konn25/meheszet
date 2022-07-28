@@ -1,12 +1,11 @@
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, reverse
-from .models import AddUser, Breeding
+from .models import AddUser, Breeding, Beehive
 from django.contrib import messages
 
 import hashlib as hl
 
 # Create your views here.
-SS = ""
 
 
 ###AddUser function###
@@ -14,7 +13,6 @@ def index(request):
     request.session.modified = True
     if 'username' in request.session:
         del request.session['username']
-    SS = ""
     return render(request, 'meheszet_app/index.html', {})
 
 
@@ -99,8 +97,6 @@ def login(request, **kwargs):
 
 
 def loggedIn(request):
-    # redirect('loggedIn')
-
     var = request.session.get('username')
     if var == "":
         return redirect('index')
@@ -119,11 +115,6 @@ def logOut():
 
 
 ###Breedings function###
-
-def breeading(request):
-    return ""
- 
-
 def addNewBreeding(request):
     if request.method == 'POST':
         username = request.session.get('username')
@@ -144,4 +135,26 @@ def getUserBreeding(request):
             if dict(values.__getitem__(i)).get('username') == request.session['username']:
                 filtered.append(dict(zip(list(values.__getitem__(i)),dict(values.__getitem__(i)).values())))
         return JsonResponse({"breeding": filtered})
+
+###Beehive function###
+def getUserBeehivesByBreedingCode(request):
+    if request.method == 'GET':
+        beehives = Beehive.objects.all()
+        values = list(beehives.values())
+        filtered=[]
+        print(request.GET)
+        for i in range(0,len(values)):
+            if dict(values.__getitem__(i)).get('breedingcode') == request.GET.get('code'):
+                filtered.append(dict(zip(list(values.__getitem__(i)),dict(values.__getitem__(i)).values())))
+        #render(request, 'meheszet_app/loggedIn.html', {'breedingnumber': request.GET.get('code')})
+    return JsonResponse({"beehives": filtered})
+
+
+def deleteBeehivesByCode(request):
+    print("Delete Beehives")
+
+def addBeehives(request):
+
+    return render(request, 'meheszet_app/addBeehive.html')
+
 

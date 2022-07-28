@@ -1,4 +1,3 @@
-from django.contrib import admin
 from django.urls import path
 
 from . import views
@@ -10,6 +9,8 @@ urlpatterns = [
     path('loggedIn/', views.loggedIn,name='loggedIn'),
     path('', views.logOut,name='logOut'),
     path('loggedIn/breedings', views.getUserBreeding, name='breeding'),
-    path('loggedIn/breedings/add',views.addNewBreeding, name='addBreeding')
+    path('loggedIn/breedings/add',views.addNewBreeding, name='addBreeding'),
+    path('loggedIn/breedings/beehives',views.getUserBeehivesByBreedingCode, name='beehives'),
+    path('loggedIn/breedings/addNewBeehive',views.addBeehives, name='addBeehive')
 
 ]
