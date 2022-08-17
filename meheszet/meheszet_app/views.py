@@ -1,9 +1,12 @@
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect, reverse, get_object_or_404
+from django.views.generic import View
+
 from .models import AddUser, Breeding, Beehive
 from django.contrib import messages
 
 import hashlib as hl
+
 
 # Create your views here.
 
@@ -120,6 +123,8 @@ def addNewBreeding(request):
         username = request.session.get('username')
         breedingcode = request.POST['code']
 
+        print(username, " ", breedingcode)
+
         new_code = Breeding(username=username, breedingcode=breedingcode)
         new_code.save()
         return HttpResponse(reverse('breeding'))
@@ -129,32 +134,81 @@ def getUserBreeding(request):
     if request.method == 'GET':
         breeading = Breeding.objects.all()
         values = list(breeading.values())
-        filtered=[]
+        filtered = []
 
-        for i in range(0,len(values)):
+        for i in range(0, len(values)):
             if dict(values.__getitem__(i)).get('username') == request.session['username']:
-                filtered.append(dict(zip(list(values.__getitem__(i)),dict(values.__getitem__(i)).values())))
+                filtered.append(dict(zip(list(values.__getitem__(i)), dict(values.__getitem__(i)).values())))
         return JsonResponse({"breeding": filtered})
+
+def breedingDelete(request):
+    breedingcode=request.GET.get('breedingcode','')
+    print(breedingcode)
+
+    breeding_delete = Breeding.objects.filter(breedingcode=breedingcode)
+    for code in breeding_delete:
+        breeding_delete.delete()
+
+    beehive_delete =Beehive.objects.filter(breedingcode=breedingcode)
+    for code in beehive_delete:
+        beehive_delete.delete()
+
+    return redirect('breeding')
+
 
 ###Beehive function###
 def getUserBeehivesByBreedingCode(request):
     if request.method == 'GET':
         beehives = Beehive.objects.all()
         values = list(beehives.values())
-        filtered=[]
-        print(request.GET)
-        for i in range(0,len(values)):
+        filtered = []
+        # print(request.GET)
+        for i in range(0, len(values)):
             if dict(values.__getitem__(i)).get('breedingcode') == request.GET.get('code'):
-                filtered.append(dict(zip(list(values.__getitem__(i)),dict(values.__getitem__(i)).values())))
-        #render(request, 'meheszet_app/loggedIn.html', {'breedingnumber': request.GET.get('code')})
+                filtered.append(dict(zip(list(values.__getitem__(i)), dict(values.__getitem__(i)).values())))
+        # render(request, 'meheszet_app/loggedIn.html', {'breedingnumber': request.GET.get('code')})
     return JsonResponse({"beehives": filtered})
 
 
 def deleteBeehivesByCode(request):
-    print("Delete Beehives")
+    breedingcode = request.GET.get('breedingcode', '')
+    beehivenumber = request.GET.get('number','')
+
+    beehive_delete = Beehive.objects.all().filter(breedingcode=breedingcode,beehivenumber=beehivenumber)
+    for code in beehive_delete:
+        beehive_delete.delete()
+
+    return redirect('beehives')
+
 
 def addBeehives(request):
+    print(request.session.keys())
+    if request.method == 'POST':
+        hivenumber = request.POST['hivenumber']
+        beecolor = request.POST['color']
+        queenbeeyear = request.POST['queenbeeyear']
+        strength = request.POST['strength']
+        hiveType = request.POST['hiveType']
+        breedingcode = request.session['selectedBreedingCode']
+        print("Breedingcode", breedingcode)
 
-    return render(request, 'meheszet_app/addBeehive.html')
+        new_beehive = Beehive(breedingcode=breedingcode, beehivenumber=hivenumber, queenbeeyear=queenbeeyear,
+                              queenbeecolor=beecolor, beehivestrength=strength, typeofhive=hiveType)
+        new_beehive.save()
+        # del request.session['selectedBreedingCode']
+        # return redirect('loggedIn')
+        # return HttpResponse(render(request,'meheszet_app/beehives.html'))
+        return HttpResponse("Hello")
 
 
+def getBeehivePage(request):
+    print("OPEN ADD BEEHIVE")
+    selectedBreedingCode = request.GET.get('code', '')
+    print("Breedingcode1", request.GET.get('code', ''))
+    request.session['selectedBreedingCode'] = selectedBreedingCode
+    print(request.session.keys())
+    return render(request, 'meheszet_app/addBeehive.html', {"selectedBreedingCode": selectedBreedingCode})
+
+
+def getBackBeehivePage(request):
+    return render(request, 'meheszet_app/beehives.html')

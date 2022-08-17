@@ -55,11 +55,11 @@ class Beehive(models.Model):
         ('Debreceni','Debreceni kaptár'),
         ('Nagy Boczonádi','Nagy Boczonádi')
     )
-    id = models.AutoField(primary_key=True)
+    #id = models.AutoField(primary_key=True)
     breedingcode = models.CharField(max_length=7, null=False, blank=False)
     beehivenumber = models.CharField(max_length=4, null=False, blank=False)
-    quenbeecolor = models.CharField(choices=COLOR_CHOICES,max_length=20)
-    quenbeeyear = models.CharField(max_length=4,null=False, blank=False)
+    queenbeecolor = models.CharField(choices=COLOR_CHOICES,max_length=20)
+    queenbeeyear = models.CharField(max_length=4,null=False, blank=False)
     beehivestrength = models.CharField(choices=BEEHIVE_STRENGTH,max_length=24)
     typeofhive = models.CharField(choices=TYPE_OF_HIVE,max_length=25)
 

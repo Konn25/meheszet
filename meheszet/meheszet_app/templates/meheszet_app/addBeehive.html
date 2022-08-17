@@ -1,15 +1,87 @@
-<form id="addBeehive" class="container-fluid justify-content-center">{% csrf_token %}
-    <div>
-        <p>Méhkaptár hozzáadása</p>
+<a class='btn btn-outline-primary' onclick='backToBeehives()'>Vissza a kaptárakhoz</a>
+<form id="addBeehive" method="POST" class="container-fluid justify-content-center" action="{% url 'addNewBeehive' %}">{% csrf_token %}
+    <div style="text-align: center;">
+        <br>
+        <h2>Méhkaptár hozzáadása</h2>
         <h4>Kaptár száma: </h4>
+        <input type="number" class="form-control" name="hivenumber" min="1" max="400" required>
         <br>
         <h4>Méh királynő szine: </h4>
+        <select name="color" id="color">
+            <option value="NULL">Válassz szint</option>
+            <option value="Kek">Kék</option>
+            <option value="Feher">Fehér</option>
+            <option value="Piros">Piros</option>
+            <option value="Sarga">Sárga</option>
+            <option value="Zold">Zöld</option>
+        </select>
         <br>
         <h4>Méh királynő éve: </h4>
+        <input type="number" class="form-control" name="queenbeeyear" min="2014" max="2022" required>
         <br>
         <h4>Kaptár erőssége: </h4>
+        <select name="strength" id="strength">
+            <option value="NULL">Válassz erősséget</option>
+            <option value="Gyenge">Gyenge</option>
+            <option value="Kozepes">Közepes</option>
+            <option value="Eros">Erős</option>
+        </select>
         <br>
         <h4>Kaptár fajtája: </h4>
+        <select name="hiveType" id="hiveType">
+            <option value="NULL">Válassz kaptár típust</option>
+            <option value="Langstroth">Langstroth</option>
+            <option value="Warre">Warre</option>
+            <option value="Neiszer">Neiszer</option>
+            <option value="Kis Boczonádi">Kis Boczonádi</option>
+            <option value="Balogh Bálint féle">Balogh Bálint féle</option>
+            <option value="Mogor">Mogor</option>
+            <option value="Hunor">Hunor</option>
+            <option value="Közép Boczonádi">Közép Boczonádi</option>
+            <option value="Dadant-Blatt féle">Dadant-Blatt féle</option>
+            <option value="Zander">Zander</option>
+            <option value="Ignácz-féle">Ignácz-féle</option>
+            <option value="Debreceni">Debreceni</option>
+            <option value="Nagy Boczonádi">Nagy Boczonádi</option>
+        </select>
+        <br>
 
+        <button class="btn btn-primary" type="submit" onclick="SuccessAddBehive()">Mentés</button><br>
+
+        <script>
+            $(document).ready(function(){
+                var $form = $('form');
+                $form.submit(function(){
+                   $.post($(this).attr('action'), $(this).serialize(), function(response){
+                                               
+                   },'json');
+                   return false;
+                });
+             });
+
+             function SuccessAddBehive(){
+                alert("Sikeresen hozzáadtál egy kaptárt");
+             }
+             
+             function backToBeehives(){
+            
+                $.ajax({
+                    type:'GET',
+                    url:"{% url 'beehives' %}",
+                    data:{
+                        code:getBreedingCode,
+                        csrfmiddlewaretoken: "{{csrf_token}}",
+                    }, 
+                    success: function(data){
+                        console.log("Get back beehives");
+                        $('#contentContainer').load('{% url "getBackBeehives" %}',function() {});
+                    }
+                 });
+
+             }
+
+        </script>
+        
     </div>
 </form>
+

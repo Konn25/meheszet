@@ -29,7 +29,7 @@
 </nav>
 <br>
 
-<div id="contentContainer">
+<div id="contentContainer" style="text-align: center;">
 
     <div id="saveBreedingNumber" style="display:none">  
 
@@ -44,10 +44,10 @@
 
 
     {% csrf_token %}
-    <div id="displaybreeding">
+        <div id="displaybreeding">
 
 
-    </div>
+        </div>
 
     <div id="beehives" style="display:none; text-align: center;">
 
@@ -69,18 +69,21 @@ function refreshBreeding(){
                 type:'GET',
                 url: "{% url 'breeding' %}",
                 success: function(response){
+                    response.breeding.sort((a, b) => (a.breedingcode > b.breedingcode) ? 1 : -1);
                     if(document.getElementById("displaybreeding")==null){
                         var newdiv = document.createElement("div");
                         newdiv.setAttribute("id","displaybreeding");
+                        newdiv.setAttribute("style","text-align: center");
                         document.body.appendChild(newdiv);
                         $("#beehives").empty();
                         document.getElementById("beehives").style.display = "none";
                         document.getElementById("saveBreedingNumber").style.display = "block";
+                    
                         for (var key in response.breeding)
                         {
                             var temp = "<a onclick='getBeehives()' class='btn btn-outline-primary' id="+counter+" name="+response.breeding[key].breedingcode+" role='button'>"+response.breeding[key].breedingcode+"</a>";
                             $("#displaybreeding").append(temp);
-                            var deleteIcon = "<a class='btn btn-outline-danger'><i class='bi bi-trash' style='font-size:15px'></i></a>";
+                            var deleteIcon = "<a class='btn btn-outline-danger' onclick='deleteBreeding("+response.breeding[key].breedingcode+")' id='deleteBreeding' breedingCode="+response.breeding[key].breedingcode+"><i class='bi bi-trash' style='font-size:15px'></i></a>";
                             $("#displaybreeding").append(deleteIcon);
                             $("#displaybreeding").append("<br>");
                             $("#displaybreeding").append("<br>");
@@ -98,7 +101,7 @@ function refreshBreeding(){
                         {
                             var temp = "<a onclick='getBeehives()' class='btn btn-outline-primary' id="+counter+" name="+response.breeding[key].breedingcode+" role='button'>"+response.breeding[key].breedingcode+"</a>";
                             $("#displaybreeding").append(temp);
-                            var deleteIcon = "<a class='btn btn-outline-danger'><i class='bi bi-trash' style='font-size:15px'></i></a>";
+                            var deleteIcon = "<a class='btn btn-outline-danger' onclick='deleteBreeding("+response.breeding[key].breedingcode+")' id='deleteBreeding' breedingCode="+response.breeding[key].breedingcode+"><i class='bi bi-trash' style='font-size:15px'></i></a>";
                             $("#displaybreeding").append(deleteIcon);
                             $("#displaybreeding").append("<br>");
                             $("#displaybreeding").append("<br>");
@@ -115,9 +118,11 @@ function refreshBreeding(){
         });
 }
 
+var getBreedingCode = 0;
 function getBeehives(){
         $('#displaybreeding').click(function(e){
             console.log('GetBEEHIVES')
+            getBreedingCode = e.target.name;
         $.ajax({
             method:'GET',
             async: true,
@@ -127,6 +132,7 @@ function getBeehives(){
             },
     
         success: function(response) {
+                response.beehives.sort((a, b) => (a.beehivenumber > b.beehivenumber) ? 1 : -1);
                 console.log(response.beehives);
                 const deleteDiv = document.getElementById("displaybreeding");
                 deleteDiv.remove();
@@ -135,17 +141,16 @@ function getBeehives(){
                 $("#beehives").append("<a class='btn btn-outline-success' onclick='addBeehive()'>Méhkaptár hozzáadása</a>");
                 $("#beehives").append("<br>");
                 $("#beehives").append("<br>");
-
+                
                 for (var key in response.beehives)
                 {
-                  
-                  var temp = "<a class='btn btn-outline-primary' id='key' role='button'>"+"BreedingCode: "+response.beehives[key].breedingcode+" | Number: "+response.beehives[key].beehivenumber+"</a>";
-                  $("#beehives").append(temp);
-                  var editIcon = "<a class='btn btn-outline-secondary'><i class='bi bi-pencil-square' style='font-size:15px'></i></a>";
-                  $("#beehives").append(editIcon);
-                  var deleteIcon = "<a class='btn btn-outline-danger'><i class='bi bi-trash' style='font-size:15px'></i></a>";
-                  $("#beehives").append(deleteIcon);
-                  $("#beehives").append("<br>");
+                    var temp = "<a class='btn btn-outline-primary' id='key' role='button' beehivenumber="+response.beehives[key].beehivenumber+" >"+"BreedingCode: "+response.beehives[key].breedingcode+" | Number: "+response.beehives[key].beehivenumber+"</a>";
+                    $("#beehives").append(temp);
+                    var editIcon = "<a class='btn btn-outline-secondary' beehivenumber="+response.beehives[key].beehivenumber+"><i class='bi bi-pencil-square' style='font-size:15px'></i></a>";
+                    $("#beehives").append(editIcon);
+                    var deleteIcon = "<a class='btn btn-outline-danger' onclick='deleteBeehive("+response.beehives[key].breedingcode+","+response.beehives[key].beehivenumber+")' beehivenumber="+response.beehives[key].beehivenumber+"><i class='bi bi-trash' style='font-size:15px'></i></a>";
+                    $("#beehives").append(deleteIcon);
+                    $("#beehives").append("<br>");
                
              
                 }
@@ -166,7 +171,7 @@ $.ajax({
 	method:'POST',
 	url:"{% url 'addBreeding' %}",
 	data:{
-	    code:$('#code').val(),
+	    code:getBreedingCode,
         csrfmiddlewaretoken: "{{csrf_token}}",
 }, 
 success: function() {
@@ -180,6 +185,7 @@ e.preventDefault();
 
 });
 
+
 function hideSaveBar(){
      document.getElementById("saveBreedingNumber").style.display = "block";
 }
@@ -187,13 +193,58 @@ function hideSaveBar(){
 function addBeehive(){
     $.ajax({
         type:'GET',
-        url: "{% url 'addBeehive' %}",
+        data:{
+            code:getBreedingCode,
+            csrfmiddlewaretoken: "{{csrf_token}}",
+        }, 
         success: function(data){
             console.log("Add behives");
-            $('#contentContainer').html($(data).find('#addBeehive').html());
-            $('#contentContainer').load('{% url "addBeehive" %} #addBeehive');
+            $('#contentContainer').load('{% url "addBeehive" %}?code='+getBreedingCode+'#addBeehive');
         }
      });
+}
+
+function deleteBreeding(code){
+    var action = confirm("Biztos törölni szeretnéd?");
+    if(action != false){
+        $.ajax({
+            url: "{% url 'deleteBreeding' %}",
+            dataType: 'json',
+            data:{
+                'breedingcode' : code,
+            },
+            success: function (data){
+                if(data.deleted){
+                    $("#breedingCode").remove();
+                    $("#name").remove();
+                }
+            }
+    
+    
+        });
+    }
+    
+}
+
+function deleteBeehive(code,number){
+    var action = confirm("Biztos törölni szeretnéd?");
+    if(action != false){
+        $.ajax({
+            url: "{% url 'deleteBeehive' %}",
+            dataType: 'json',
+            data:{
+                'breedingcode' : code,
+                'number': number,
+            },
+            success: function (data){
+                if(data.deleted){
+                    $("#beehivenumber").remove();
+                }
+            }
+    
+    
+        });
+    }  
 }
 
 
@@ -212,7 +263,6 @@ clearTimeout(refresh);
  if ( window.performance.navigation.type == window.performance.navigation.TYPE_BACK_FORWARD) {
         window.location.reload(true);
  }
-
 
 </script>
 

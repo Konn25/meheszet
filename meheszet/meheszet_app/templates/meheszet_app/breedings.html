@@ -1,0 +1,177 @@
+<div id="saveBreedingNumber" style="display:none">  
+
+    <form class='container-fluid justify-content-center' method='POST'>
+        {% csrf_token %}
+        <label>Tenyészet kód:</label>
+        <input type='text' maxlength="7" name="code" id="code" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+        <button class="btn btn-primary" type="submit">Mentés</button><br>
+
+    </form>
+</div>
+
+<div id="breedings" style="text-align: center;">
+
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+{% csrf_token %}
+<script>
+
+var refresh;
+function refreshBreeding(){
+     setTimeout(function(){
+            $.ajax({
+                type:'GET',
+                url: "{% url 'breeding' %}",
+                success: function(response){
+                    if(document.getElementById("breedings")==null){
+                        var newdiv = document.createElement("div");
+                        newdiv.setAttribute("id","breedings");
+                        document.body.appendChild(newdiv);
+                        $("#beehives").empty();
+                        document.getElementById("beehives").style.display = "none";
+                        document.getElementById("saveBreedingNumber").style.display = "block";
+                        for (var key in response.breeding)
+                        {
+                            var temp = "<a onclick='getBeehives()' class='btn btn-outline-primary' id="+counter+" name="+response.breeding[key].breedingcode+" role='button'>"+response.breeding[key].breedingcode+"</a>";
+                            $("#breedings").append(temp);
+                            var deleteIcon = "<a class='btn btn-outline-danger'><i class='bi bi-trash' style='font-size:15px'></i></a>";
+                            $("#breedings").append(deleteIcon);
+                            $("#breedings").append("<br>");
+                            $("#breedings").append("<br>");
+                            counter = counter+1;
+                        }
+                        counter=1;
+
+                    }
+                    else{
+                        $("#breedings").empty();
+                        var counter = 1;
+                        console.log(response.breeding);
+                       
+                        for (var key in response.breeding)
+                        {
+                            var temp = "<a onclick='getBeehives()' class='btn btn-outline-primary' id="+counter+" name="+response.breeding[key].breedingcode+" role='button'>"+response.breeding[key].breedingcode+"</a>";
+                            $("#breedings").append(temp);
+                            var deleteIcon = "<a class='btn btn-outline-danger'><i class='bi bi-trash' style='font-size:15px'></i></a>";
+                            $("#breedings").append(deleteIcon);
+                            $("#breedings").append("<br>");
+                            $("#breedings").append("<br>");
+                            counter = counter+1;
+                        }
+                        counter=1;
+                    }
+                   
+                },
+                error: function(response){
+                    alert("An Error Occured")
+                }
+            });
+        });
+}
+
+var getBreedingCode = 0;
+function getBeehives(){
+        $('#breedings').click(function(e){
+            console.log('GetBEEHIVES')
+            getBreedingCode = e.target.name;
+        $.ajax({
+            method:'GET',
+            async: true,
+            url:"{% url 'beehives' %}",
+            data:{
+                code:e.target.name
+            },
+    
+        success: function(response) {
+                console.log(response.beehives);
+                const deleteDiv = document.getElementById("breedings");
+                deleteDiv.remove();
+                document.getElementById("saveBreedingNumber").style.display = "none";
+                $("#beehives").append("<a class='btn btn-outline-primary' onclick='refreshBreeding()'>Vissza a tenyészetekhez</a>");
+                $("#beehives").append("<a class='btn btn-outline-success' onclick='addBeehive()'>Méhkaptár hozzáadása</a>");
+                $("#beehives").append("<br>");
+                $("#beehives").append("<br>");
+
+                for (var key in response.beehives)
+                {
+                  
+                  var temp = "<a class='btn btn-outline-primary' id='key' role='button'>"+"BreedingCode: "+response.beehives[key].breedingcode+" | Number: "+response.beehives[key].beehivenumber+"</a>";
+                  $("#beehives").append(temp);
+                  var editIcon = "<a class='btn btn-outline-secondary'><i class='bi bi-pencil-square' style='font-size:15px'></i></a>";
+                  $("#beehives").append(editIcon);
+                  var deleteIcon = "<a class='btn btn-outline-danger'><i class='bi bi-trash' style='font-size:15px'></i></a>";
+                  $("#beehives").append(deleteIcon);
+                  $("#beehives").append("<br>");
+               
+             
+                }
+                document.getElementById("beehives").style.display = "block";
+                
+        },
+        });
+        e.preventDefault();
+        });
+    
+}
+
+
+$(document).ready(function(){
+$('#saveBreedingNumber').on('submit', function(e){
+
+$.ajax({
+	method:'POST',
+	url:"{% url 'addBreeding' %}",
+	data:{
+	    code:getBreedingCode,
+        csrfmiddlewaretoken: "{{csrf_token}}",
+}, 
+success: function() {
+
+    alert('Sikeresen hozzáadtál egy új tenyészetet');
+	refreshBreeding();
+},
+});
+e.preventDefault();
+});
+
+});
+
+function addBeehive(){
+    $.ajax({
+        type:'GET',
+        data:{
+            code:getBreedingCode,
+            csrfmiddlewaretoken: "{{csrf_token}}",
+        }, 
+        success: function(data){
+            console.log("Add behives");
+            $('#contentContainer').load('{% url "addBeehive" %}?code='+getBreedingCode+'#addBeehive');
+        }
+     });
+}
+
+
+
+$('#breeding').click(function(){
+    if(document.getElementById("saveBreedingNumber")==null){
+        window.location.reload(true);
+    }else{
+        refresh=refreshBreeding();
+        hideSaveBar();
+    }
+    
+    });
+
+clearTimeout(refresh);
+
+ if ( window.performance.navigation.type == window.performance.navigation.TYPE_BACK_FORWARD) {
+        window.location.reload(true);
+ }
+
+</script>
