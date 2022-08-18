@@ -127,7 +127,7 @@ def addNewBreeding(request):
 
         new_code = Breeding(username=username, breedingcode=breedingcode)
         new_code.save()
-        return HttpResponse(reverse('breeding'))
+    return JsonResponse({"addBreeding":"OK" })
 
 
 def getUserBreeding(request):
