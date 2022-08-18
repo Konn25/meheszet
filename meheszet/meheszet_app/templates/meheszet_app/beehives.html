@@ -3,7 +3,7 @@
 
     <div id="saveBreedingNumber" style="display:none">  
 
-        <form class='container-fluid justify-content-center' method='POST'>
+        <form id="saveBreedingNumber2" class='container-fluid justify-content-center' method='POST' action = {%url 'addBreeding' %}>
             {% csrf_token %}
             <label>Tenyészet kód:</label>
             <input type='text' maxlength="7" name="code" id="code" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
@@ -203,6 +203,16 @@
                     }
                     
                 }
+
+                $(document).ready(function(){
+                    $('#saveBreedingNumber2').submit(function(){
+                        $.post($(this).attr('action'), $(this).serialize(), function(response){
+                                                    
+                        },'json');
+                        return false;
+                     });
+                    
+                    });
 
                 clearTimeout(refresh);
             
